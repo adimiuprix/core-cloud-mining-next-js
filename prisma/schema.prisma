@@ -14,9 +14,45 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  name  String? @default("No Name")
-  email String? @unique
-  hobi String?
-  warna String?
+  id               Int                @id @default(autoincrement())
+  username         String?
+  balance          Decimal            @default(0.00000000) @db.Decimal(20, 8)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  UserMiningRecord UserMiningRecord[]
+}
+
+model Plan {
+  id               Int                @id @default(autoincrement())
+  plan_name        String
+  earn_per_day     Decimal            @db.Decimal(20, 8)
+  earning_rate     Decimal            @db.Decimal(20, 8)
+  price            Decimal            @db.Decimal(20, 8)
+  duration         Int
+  profit           Decimal            @db.Decimal(20, 8)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  UserMiningRecord UserMiningRecord[]
+}
+
+model UserMiningRecord {
+  id          Int       @id @default(autoincrement())
+  user_id     Int
+  plan_id     Int
+  status      Status    @default(active)
+  last_sum    BigInt
+  expire_date DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [plan_id], references: [id], onDelete: Cascade)
+
+  @@map("user_mining_record")
+}
+
+enum Status {
+  active
+  inactive
 }
