@@ -30,6 +30,7 @@ model Plan {
   price            Decimal            @db.Decimal(20, 8)
   duration         Int
   profit           Decimal            @db.Decimal(20, 8)
+  is_default       Boolean            @default(false)
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   UserMiningRecord UserMiningRecord[]

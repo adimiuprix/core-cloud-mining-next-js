@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
-export default function Home() {
+export default function AuthPage() {
   const [username, setUsername] = useState("")
   const [message, setMessage] = useState("")
   const router = useRouter()
@@ -45,5 +45,5 @@ export default function Home() {
       </form>
       {message && <p className="text-red-500 mt-2">{message}</p>}
     </div>
-  );
+  )
 }
