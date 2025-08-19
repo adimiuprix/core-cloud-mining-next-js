@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import MiningBalance from '@/components/MiningBalance'
+import LogoutButton from '@/components/LogoutButton'
 
 export default function Page() {
   const cookieStore = cookies()
@@ -11,6 +12,8 @@ export default function Page() {
       <h1 className="text-lg font-bold">Data Cookie Kamu:</h1>
       <p className="mt-2">data user id: {userData.id}</p>
       <MiningBalance />
+
+      <LogoutButton />
     </div>
   )
 }

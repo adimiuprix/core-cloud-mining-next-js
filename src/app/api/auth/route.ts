@@ -11,23 +11,18 @@ export async function POST(req: Request) {
   const defaultPlan = await prisma.plan.findFirst({ where: { is_default: true } });
   if (!defaultPlan) return NextResponse.json({ error: "Default plan not found" }, { status: 400 });
 
-  
   try {
     if (user) {
-      const userData = {
-        id: user.id,
-        username: user.username,
-      }
-
-      const res = NextResponse.json({ message: "Login successful", userId: user.id })
-        res.cookies.set({
-        name: 'session',
-        value: JSON.stringify(userData),
-        path: '/',
-        httpOnly: false,
-        sameSite: 'lax',
-      })
-      return res;
+      const userData = {id: user.id, username: user.username}
+      return NextResponse.json(
+        { message: 'Login successful', userId: user.id },
+        {
+          status: 200,
+          headers: {
+            'Set-Cookie': `session=${encodeURIComponent(JSON.stringify(userData))}; HttpOnly; Path=/; SameSite=Lax`,
+          },
+        }
+      )
     } else {
       // Register + assign default plan
       user = await prisma.user.create({ data: { username } });
@@ -45,7 +40,16 @@ export async function POST(req: Request) {
         },
       });
 
-      return NextResponse.json({ message: "Register successful", userId: user.id });
+      const userData = {id: user.id, username: user.username}
+      return NextResponse.json(
+        { message: 'Register successful', userId: user.id },
+        {
+          status: 200,
+          headers: {
+            'Set-Cookie': `session=${encodeURIComponent(JSON.stringify(userData))}; HttpOnly; Path=/; SameSite=Lax`,
+          },
+        }
+      )
     }
   } catch (error) {
     console.error(error);
