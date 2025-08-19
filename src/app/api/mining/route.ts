@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from 'next/headers'
 import {
     plansCron,
     getBalance,
@@ -8,7 +9,7 @@ import {
 } from "@/lib/services/userService"
 
 export async function GET () {
-    const userId: number = 2
+    const userId: number = JSON.parse(cookies().get('session')?.value || '{}').id ?? NaN
     await plansCron(userId)
     const balance = await getBalance(userId)
     await updateBalances(userId, balance)

@@ -1,28 +1,33 @@
+'use server'
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { sessionOptions, createCookieStore } from '@/lib/session'
-import { getIronSession } from 'iron-session';
 
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   const { username } = await req.json();
-  
+
   let user = await prisma.user.findFirst({ where: { username } });
   const defaultPlan = await prisma.plan.findFirst({ where: { is_default: true } });
   if (!defaultPlan) return NextResponse.json({ error: "Default plan not found" }, { status: 400 });
 
+  
   try {
-    const cookieStore = await createCookieStore();
-    const session = await getIronSession(cookieStore, sessionOptions);
-
     if (user) {
-      // Login: simpan session
-      session.userId = user.id;
-      session.username = user.username;
-      await session.save();
+      const userData = {
+        id: user.id,
+        username: user.username,
+      }
 
-      return NextResponse.json({ message: "Login successful", userId: user.id });
+      const res = NextResponse.json({ message: "Login successful", userId: user.id })
+        res.cookies.set({
+        name: 'session',
+        value: JSON.stringify(userData),
+        path: '/',
+        httpOnly: false,
+        sameSite: 'lax',
+      })
+      return res;
     } else {
       // Register + assign default plan
       user = await prisma.user.create({ data: { username } });
@@ -39,11 +44,6 @@ export async function POST(req: Request) {
           last_sum: BigInt(Math.floor(Date.now() / 1000)),
         },
       });
-
-      // Buat session setelah register
-      session.userId = user.id;
-      session.username = user.username;
-      await session.save();
 
       return NextResponse.json({ message: "Register successful", userId: user.id });
     }
